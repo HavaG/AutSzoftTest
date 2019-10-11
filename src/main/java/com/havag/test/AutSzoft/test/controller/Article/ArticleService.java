@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,9 +26,10 @@ public class ArticleService implements IArticleService {
 
     @Override
     public Article getArticleById(long articleId) {
-        Optional<Article> article = articleRepository.findById(articleId);
-        return article.orElse(null);
+        Article article = articleRepository.findById(articleId).get();
+        return article;
     }
+
 
     @Override
     public boolean addArticle(Article article) {
@@ -37,11 +39,30 @@ public class ArticleService implements IArticleService {
 
     @Override
     public void updateArticle(Article article) {
-        //TODO updateArticle
+        //TODO: ráér minden egyedhez új id-t generál
+        //check if exist in db
+        Optional<Article> tmp = articleRepository.findById(article.getId());
+        if(tmp.isPresent()) {
+            Article tmpArticle = tmp.get();
+            if(article.getText() == null)
+                article.setText(tmpArticle.getText());
+            if(article.getTitle() == null)
+                article.setTitle(tmpArticle.getTitle());
+            article.setEditDate(new Date(System.currentTimeMillis()));
+            //delete old
+            articleRepository.deleteById(tmp.get().getId());
+            //save new
+            articleRepository.save(article);
+        }
     }
 
     @Override
-    public void deleteArticle(int articleId) {
-        articleRepository.delete(getArticleById(articleId));
+    public boolean deleteArticle(long articleId) {
+        if(articleRepository.existsById(articleId)) {
+            articleRepository.delete(getArticleById(articleId));
+            return true;
+        }
+        else
+            return false;
     }
 }

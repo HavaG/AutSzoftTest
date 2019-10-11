@@ -37,11 +37,27 @@ public class CategoryService implements ICategoryService {
 
     @Override
     public void updateCategory(Category category) {
-        //TODO updateCategory
+        //TODO: ráér minden egyedhez új id-t generál
+        //check if exist in db
+        Optional<Category> tmp = categoryRepository.findById(category.getId());
+        if(tmp.isPresent()) {
+            Category tmpCategory = tmp.get();
+            if(category.getName() == null)
+                category.setName(tmpCategory.getName());
+
+            //delete old
+            categoryRepository.deleteById(tmp.get().getId());
+            //save new
+            categoryRepository.save(category);
+        }
     }
 
     @Override
-    public void deleteCategory(int categoryId) {
-        categoryRepository.delete(getCategoryById(categoryId));
+    public boolean deleteCategory(long categoryId) {
+        if(categoryRepository.existsById(categoryId)){
+            categoryRepository.delete(getCategoryById(categoryId));
+            return true;
+        } else
+            return false;
     }
 }

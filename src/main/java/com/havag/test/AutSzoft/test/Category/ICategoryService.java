@@ -11,5 +11,5 @@ public interface ICategoryService {
     Category getCategoryById(long categoryId);
     boolean addCategory(Category category);
     void updateCategory(Category category);
-    void deleteCategory(int categoryId);
+    boolean deleteCategory(long categoryId);
 }

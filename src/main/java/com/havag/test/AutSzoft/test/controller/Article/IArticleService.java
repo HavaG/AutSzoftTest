@@ -11,5 +11,5 @@ public interface IArticleService {
     Article getArticleById(long articleId);
     boolean addArticle(Article article);
     void updateArticle(Article article);
-    void deleteArticle(int articleId);
+    boolean deleteArticle(long articleId);
 }
