@@ -1,7 +1,7 @@
 package com.havag.test.AutSzoft.test;
 
 
-import com.havag.test.AutSzoft.test.Category.CategoryRepository;
+import com.havag.test.AutSzoft.test.controller.Category.CategoryRepository;
 import com.havag.test.AutSzoft.test.controller.Article.ArticleRepository;
 import com.havag.test.AutSzoft.test.modules.Article;
 import com.havag.test.AutSzoft.test.modules.Category;
@@ -25,23 +25,25 @@ public class DbSeeder implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
+        //example data for testing only
         this.articleRepository.deleteAll();
         this.categoryRepository.deleteAll();
 
-        //TODO elements create, add to list db elérés rendesen megcsinálni
-        Article a1 = new Article();
+        Article a1 = new Article("title", "Text");
         Article a2 = new Article();
 
         Category c1 = new Category();
         Category c2 = new Category();
 
-        c1.setLabel("asdasd");
+        c1.setLabel("label");
 
-        a1.setText("asdasddsadsasdds");
+
+        a2.setText("asdasddsadsasdds");
         c1.setName("elso");
         c2.setName("masodik");
 
-        //a1.addCategory(c1);
+        a1.addCategory(c1);
+        c1.addArticle(a1);
 
         List<Article> articles = new ArrayList<>();
         List<Category> categories = new ArrayList<>();

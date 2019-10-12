@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ArticleRepository extends CrudRepository<Article, Long> {
-    //TODO: ArticleRepository (ide nem is kell semmi?)
+
 }

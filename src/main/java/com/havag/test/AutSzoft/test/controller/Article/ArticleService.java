@@ -1,13 +1,12 @@
 package com.havag.test.AutSzoft.test.controller.Article;
 
+import com.havag.test.AutSzoft.test.controller.Category.CategoryRepository;
 import com.havag.test.AutSzoft.test.modules.Article;
+import com.havag.test.AutSzoft.test.modules.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ArticleService implements IArticleService {
@@ -15,19 +14,12 @@ public class ArticleService implements IArticleService {
     @Autowired
     private ArticleRepository articleRepository;
 
-    @Override
-    public List<Article> getAllArticles() {
-        List<Article> list = new ArrayList<>();
-        for (Article article : articleRepository.findAll()) {
-            list.add(article);
-        }
-        return list;
-    }
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     @Override
     public Article getArticleById(long articleId) {
-        Article article = articleRepository.findById(articleId).get();
-        return article;
+        return articleRepository.findById(articleId).get();
     }
 
 
@@ -38,31 +30,71 @@ public class ArticleService implements IArticleService {
     }
 
     @Override
-    public void updateArticle(Article article) {
-        //TODO: ráér minden egyedhez új id-t generál
+    public Article updateArticle(Article article) {
         //check if exist in db
         Optional<Article> tmp = articleRepository.findById(article.getId());
         if(tmp.isPresent()) {
             Article tmpArticle = tmp.get();
+            Set<Category> categorySet = tmp.get().getCategories();
+            tmpArticle.setCategories(categorySet);
             if(article.getText() == null)
                 article.setText(tmpArticle.getText());
             if(article.getTitle() == null)
                 article.setTitle(tmpArticle.getTitle());
             article.setEditDate(new Date(System.currentTimeMillis()));
-            //delete old
-            articleRepository.deleteById(tmp.get().getId());
-            //save new
+            article.setCategories(tmpArticle.getCategories());
             articleRepository.save(article);
+            return article;
         }
+        return null;
     }
 
     @Override
     public boolean deleteArticle(long articleId) {
         if(articleRepository.existsById(articleId)) {
-            articleRepository.delete(getArticleById(articleId));
+                articleRepository.delete(getArticleById(articleId));
             return true;
         }
         else
             return false;
+    }
+
+    @Override
+    public boolean removeCategory(long articleId, Category category) {
+        Optional<Article> tmp = articleRepository.findById(articleId);
+        if(tmp.isPresent() && category != null) {
+            Article temporal = tmp.get();
+            if(temporal.getCategories().contains(category)) {
+                temporal.getCategories().remove(category);
+                temporal.setEditDate(new Date(System.currentTimeMillis()));
+
+
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean addCategoryToArticle(long articleId, Category category) {
+        Optional<Article> tmp = articleRepository.findById(articleId);
+        if(tmp.isPresent() && category != null) {
+            Article temporal = tmp.get();
+            //if more then 4 or already contain
+            if(temporal.getCategories().size() >= 5 || temporal.getCategories().contains(category)) {
+                return false;
+            }
+            temporal.addCategory(category);
+            temporal.setEditDate(new Date(System.currentTimeMillis()));
+
+            categoryRepository.findById(category.getId());
+            categoryRepository.delete(category);
+            category.addArticle(temporal);
+            categoryRepository.save(category);
+
+            return true;
+        }
+
+        return false;
     }
 }

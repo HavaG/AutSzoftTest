@@ -1,12 +1,10 @@
 package com.havag.test.AutSzoft.test.modules;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity
-@Table(name = "article")
+@Table(name = "articles")
 public class Article {
 
     @Id
@@ -15,7 +13,28 @@ public class Article {
     private String text;
     private Date addDate;
     private Date editDate;
-    //TODO: max 5 category List<Category> categories = new ArrayList<>();
+
+
+    @ManyToMany (cascade=CascadeType.ALL)
+    @JoinTable(
+            name = "connect_table",
+            joinColumns = @JoinColumn(name = "article_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id"))
+    private Set<Category> categories;
+
+    public Set<Category> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(Set<Category> categories) {
+        this.categories = categories;
+    }
+
+    public void addCategory(Category category) {
+        if(categories.size() < 5){
+            this.categories.add(category);
+        }
+    }
 
     public long getId() {
         return id;
@@ -24,6 +43,15 @@ public class Article {
     public Article() {
         addDate = new Date(System.currentTimeMillis());
         editDate = new Date(System.currentTimeMillis());
+        categories = new HashSet<>();
+    }
+
+    public Article(String text, String title) {
+        this.title = title;
+        this.text = text;
+        addDate = new Date(System.currentTimeMillis());
+        editDate = new Date(System.currentTimeMillis());
+        categories = new HashSet<>();
     }
 
     public String getTitle() {
@@ -42,33 +70,7 @@ public class Article {
         this.text = text;
     }
 
-    public Date getAddDate() {
-        return addDate;
-    }
-
-    public void setAddDate(Date addDate) {
-        this.addDate = addDate;
-    }
-
-    public Date getEditDate() {
-        return editDate;
-    }
-
     public void setEditDate(Date editDate) {
         this.editDate = editDate;
     }
-
-    /*
-    public void removeCategory(Category category) {
-        categoryIdList.remove(category.getId());
-    }
-
-
-    public void addCategory(Category category) {
-        if(categoryIdList.size() < 5) {
-            categoryIdList.add(category.getId());
-        }
-    }
-
-     */
 }
